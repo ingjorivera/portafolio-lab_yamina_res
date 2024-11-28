@@ -19,11 +19,14 @@ const accept = ref(false)
             distancia
           </div>
           <div class="" style="max-width:75% ; text-align: center;">
+
             Bienvenido al portal de resultados del Laboratorio Especializado Yamina Cumplido, aquí podras descargar tus
             resultados de forma sencilla, rapida y segura....
+
           </div>
           <div class="column bg-blue-grey-1 q-pa-md" style="border-radius: 10px; min-width: 420px; gap:12px">
             <div class="column" style="gap:8px">
+              <div></div>
               <div style="text-align: center;">Ingrese su numero de identificacion</div>
               <q-input filled bg-color="white" dense v-model="text" label="Identificacion" />
               <q-checkbox dense v-model="accept" label="Acepto los terminos y condiciones" />

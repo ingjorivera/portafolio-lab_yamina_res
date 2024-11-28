@@ -20,7 +20,7 @@ const accept = ref(false)
           </div>
           <div class="" style="max-width:75% ; text-align: center;">
             Bienvenido al portal de resultados del Laboratorio Especializado Yamina Cumplido, aquí podras descargar tus
-            resultados de forma sencilla, rapida y segura.
+            resultados de forma sencilla, rapida y segura....
           </div>
           <div class="column bg-blue-grey-1 q-pa-md" style="border-radius: 10px; min-width: 420px; gap:12px">
             <div class="column" style="gap:8px">

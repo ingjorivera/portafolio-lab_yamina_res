@@ -11,6 +11,15 @@ const emit = defineEmits(['update:modelValue'])
 const otpValues = ref(Array(props.length || 4).fill(''))
 const inputRefs = ref<HTMLInputElement[]>([])
 
+const setInputRef = (el: any, index: number) => {
+  if (el) {
+    const input = el.$el?.querySelector('input') || el.$el?.getElementsByClassName('q-field__native')[0]
+    if (input) {
+      inputRefs.value[index] = input
+    }
+  }
+}
+
 const updateModelValue = () => {
   emit('update:modelValue', otpValues.value.join(''))
 }
@@ -56,12 +65,18 @@ watch(() => props.modelValue, (newValue) => {
 
 <template>
   <div class="row q-gutter-sm justify-center">
-    <q-input v-for="(digit, index) in otpValues" :key="index" v-model="otpValues[index]"
-      :ref="el => { if (el) inputRefs[index] = el.$el.getElementsByClassName('q-field__native')[0] }" type="text"
-      inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input"
-      :rules="[val => /^\d*$/.test(val) || 'Solo números']" @keyup="handleKeyup(index, $event)"
-      @keydown="handleKeydown(index, $event)" style="width: 50px; flex-wrap: nowrap !important;">
-
+    <q-input v-for="(digit, index) in otpValues" :key="index" 
+      v-model="otpValues[index]"
+      :ref="el => setInputRef(el, index)"
+      type="text"
+      inputmode="numeric" 
+      pattern="[0-9]*" 
+      maxlength="1" 
+      class="otp-input"
+      :rules="[val => /^\d*$/.test(val) || 'Solo números']" 
+      @keyup="handleKeyup(index, $event)"
+      @keydown="handleKeydown(index, $event)" 
+      style="width: 50px; flex-wrap: nowrap !important;">
     </q-input>
 
   </div>

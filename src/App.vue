@@ -25,15 +25,17 @@ const handleVerifyPin = () => {
 
     <div class="col items-center justify-center row">
       <div class="bg-white row shadow-6" style="border-radius: 20px; overflow: hidden;">
-        <div class="q-pa-md"
-          style="width: 370px; background: url('./images/bg_left-min.png'); min-height: 470px; background-size: cover;">
+        <div class="q-pa-md row items-end justify-center q-pb-xl"
+          style="width: 370px; background: url('./images/bg_lateral.png'); min-height: 470px; background-size: cover;">
+          <img src="/images/logo_yamina.svg" alt="">
         </div>
         <div class="q-pa-lg bg-white column items-center " style="width: 600px;  ">
           <q-carousel animated v-model="principal" transition-prev="slide-right" transition-next="slide-left"
             style="height: fit-content; width: 100%;">
             <q-carousel-slide name="login">
-              <div class="column q-pa-md" style="gap:30px">
-                <div class="text-h5 text-bold" style="text-align: center;">Resultados precisos y confiables <br> a un
+              <div class="column q-pa-md items-center" style="gap:30px">
+                <div class="text-h5 text-bold text-primary" style="text-align: center;">Resultados precisos y confiables
+                  <br> a un
                   clic de
                   distancia
                 </div>
@@ -55,7 +57,7 @@ const handleVerifyPin = () => {
                           <q-input filled bg-color="white" dense v-model="text" label="Identificacion" />
                           <q-checkbox dense v-model="accept" label="Acepto los terminos y condiciones" />
                         </div>
-                        <q-btn @click="handleSendPin" label="Enviar pin de acceso" color="primary" class="full-width"
+                        <q-btn @click="handleSendPin" label="Enviar pin de acceso" color="accent" class="full-width"
                           style="margin-top: 20px;" />
                       </div>
 
@@ -75,7 +77,7 @@ const handleVerifyPin = () => {
                           </div>
 
                         </div>
-                        <q-btn label="Verificar código" color="primary" class="full-width" style="margin-top: 20px;"
+                        <q-btn label="Verificar código" color="accent" class="full-width" style="margin-top: 20px;"
                           @click="handleVerifyPin" />
                       </div>
                     </q-carousel-slide>
@@ -88,7 +90,7 @@ const handleVerifyPin = () => {
               </div>
             </q-carousel-slide>
             <q-carousel-slide name="results">
-              <div style=" height: 400px;">
+              <div style=" height: 500px;">
                 <Results />
               </div>
 
@@ -99,10 +101,23 @@ const handleVerifyPin = () => {
         </div>
       </div>
     </div>
-    <div class="row justify-center" style="height: 50px;">
-      Todos los derechos reservados
+    <div class="row justify-center footer_color" style="height: 50px; gap:20px; ">
+
+      <div class="pointer">© 2020-2024, Laboratorio Especializado Yamina Cumplido</div>
+      <div>Sincelejo - Colombia</div>
+      <div class="pointer">Términos y condiciones</div>
+      <div class="pointer">Redes sociales</div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.footer_color {
+  color: rgba(18, 7, 138, 0.578);
+
+}
+
+.pointer {
+  cursor: pointer;
+}
+</style>

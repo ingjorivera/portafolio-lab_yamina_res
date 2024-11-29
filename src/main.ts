@@ -26,6 +26,17 @@ app.use(Quasar, {
     plugins: {}, // import Quasar plugins and add here
     lang: quasarLang,
     iconSet: quasarIconSet,
+    config: {
+      brand: {
+        primary: '#374B96',
+        secondary: '#34BAE9',
+        accent: '#24B200',
+        positive: '#21BA45',
+        negative: '#C10015',
+        info: '#31CCEC',
+        warning: '#F2C037'
+      }
+    }
   })
 
 app.mount('#app')

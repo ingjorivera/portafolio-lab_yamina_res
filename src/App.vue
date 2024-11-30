@@ -3,11 +3,16 @@ import { ref } from 'vue'
 import OtpInput from './components/OtpInput.vue'
 import Results from './components/Results.vue';
 
-const text = ref('')
+const identification_number = ref('')
 const accept = ref(false)
 const otpCode = ref('')
 const slide = ref('identification')
 const principal = ref('login')
+
+const numberRule = (val: string) => {
+  if (!val) return 'Este campo es requerido'
+  return /^\d+$/.test(val) || 'Solo se permiten números'
+}
 
 const handleSendPin = () => {
 
@@ -31,7 +36,7 @@ const handleVerifyPin = () => {
         </div>
         <div class="q-pa-lg bg-white column items-center " style="width: 600px;  ">
           <q-carousel animated v-model="principal" transition-prev="slide-right" transition-next="slide-left"
-            style="height: fit-content; width: 100%;">
+            style="width: 100%; height: fit-content;">
             <q-carousel-slide name="login">
               <div class="column q-pa-md items-center" style="gap:30px">
                 <div class="text-h5 text-bold text-primary" style="text-align: center;">Resultados precisos y confiables
@@ -54,11 +59,17 @@ const handleVerifyPin = () => {
                         <div class="column" style="gap:8px">
 
                           <div style="text-align: center;">Ingrese su número de identificacion</div>
-                          <q-input filled bg-color="white" dense v-model="text" label="Identificacion" />
+                          <q-input filled bg-color="white" dense class="[&::-webkit-inner-spin-button]:appearance-none"
+                            v-model="identification_number" label="Identificacion" maxlength="10" :rules="[numberRule]"
+                            @keypress="(e: KeyboardEvent) => {
+                              if (!/\d/.test(e.key)) {
+                                e.preventDefault()
+                              }
+                            }" />
                           <q-checkbox dense v-model="accept" label="Acepto los terminos y condiciones" />
                         </div>
-                        <q-btn @click="handleSendPin" label="Enviar pin de acceso" color="accent" class="full-width"
-                          style="margin-top: 20px;" />
+                        <q-btn :disabled="identification_number.length < 8 || accept == false" @click="handleSendPin"
+                          label="Enviar pin de acceso" color="accent" class="full-width" style="margin-top: 20px;" />
                       </div>
 
                     </q-carousel-slide>
@@ -103,7 +114,7 @@ const handleVerifyPin = () => {
     </div>
     <div class="row justify-center footer_color" style="height: 50px; gap:20px; ">
 
-      <div class="pointer">© 2020-2024, Laboratorio Especializado Yamina Cumplido</div>
+      <div class="pointer"> 2020-2024, Laboratorio Especializado Yamina Cumplido</div>
       <div>Sincelejo - Colombia</div>
       <div class="pointer">Términos y condiciones</div>
       <div class="pointer">Redes sociales</div>
@@ -119,5 +130,16 @@ const handleVerifyPin = () => {
 
 .pointer {
   cursor: pointer;
+}
+
+/* Hide number input spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
 }
 </style>

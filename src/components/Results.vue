@@ -1,7 +1,54 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { usePatientStore } from '@/stores/patient';
 
-const tab = ref('pending')
+const patientStore = usePatientStore()
+const tab = ref('ready')
+const expandedGroups = ref(new Set())
+
+const toggleGroup = (index: number) => {
+    if (expandedGroups.value.has(index)) {
+        expandedGroups.value.delete(index)
+    } else {
+        expandedGroups.value.add(index)
+    }
+}
+
+const firstName = computed(() => {
+    let pos = 0
+    if (patientStore.examenRes[0].paciente.length > 1) {
+        pos = 1
+    }
+    const fullName = patientStore.examenRes[0].paciente[pos].nom1
+    const firstWord = fullName.split(' ')[0].toLowerCase()
+    return firstWord.charAt(0).toUpperCase() + firstWord.slice(1)
+})
+
+const limitedExams = computed(() => {
+    return patientStore.examenRes[0].paciente_examenes
+        .map((exam, index) => ({
+            ...exam,
+            examenes: {
+                ...exam.examenes,
+                validado: exam.examenes.validado ?
+                    (expandedGroups.value.has(index) ? exam.examenes.validado : exam.examenes.validado.slice(0, 3)) :
+                    []
+            }
+        }))
+        .filter(exam => exam.examenes.validado && exam.examenes.validado.length > 0)
+})
+
+const pendingExams = computed(() => {
+    return patientStore.examenRes[0].paciente_examenes
+        .filter(exam => exam.examenes.pendiente && exam.examenes.pendiente.length > 0)
+})
+
+const getRemainingCount = (index: number) => {
+    const exam = patientStore.examenRes[0].paciente_examenes[index]
+    const totalValidated = exam.examenes.validado?.length || 0
+    return Math.max(0, totalValidated - 3)
+}
+
 const results = ref([
     {
         id: 1,
@@ -39,262 +86,128 @@ const results = ref([
 
 <template>
     <div class="column full-height" style="gap: 14px;">
-        <div class="text-h5 text-primary" style="font-weight: bold;">Hola, Jorge</div>
-        <div>Aqui encontraras los resultados pendientes y los que ya estan listos para
-            descargar
+        <div class="text-h5 text-primary" style="font-weight: bold;">Hola, {{ firstName }}</div>
+        <div>Accede fácilmente a tus resultados de laboratorio. Aquí encontrarás tanto los pendientes como los que ya
+            están listos para descargar.
         </div>
 
         <q-tabs v-model="tab" class="text-primary" inline-label>
+
+            <q-tab icon="fas fa-check" name="ready" label="Disponibles" />
             <q-tab icon="fas fa-clock" name="pending" label="Pendientes" />
-            <q-tab icon="fas fa-check" name="ready" label="Listos" />
         </q-tabs>
         <div class="col bg-blue-grey-1" style="border-radius: 10px; border: 1px solid grey;">
 
             <q-tab-panels v-model="tab" animated class="bg-transparent">
-
-                <q-tab-panel name="pending" style="height: 355px;">
+                <q-tab-panel name="ready" style="height: 333px;">
                     <q-scroll-area class="fit custom-scroll" visible :vertical-offset="[8, 8]">
-                        <div class="q-pa-sm"></div>
-                        <div class="column q-pl-md q-pr-md " style="gap: 10px; "
-                            v-for="month in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]" :key="month">
+                        <div class="q-pa-md">
+                            <template v-if="limitedExams.length > 0">
+                                <q-card v-for="(examen, i) in limitedExams" :key="i" flat bordered
+                                    class="q-mb-lg q-pa-sm" style="border-radius: 10px;">
+                                    <div class="q-pa-sm column" style="gap:10px">
+                                        <div class="row" style="font-size: x-small; gap:10px">
+                                            <div class="row" style="gap:10px">
+                                                <div>Fecha de generación: {{ examen.fecha_final }}</div>
+                                                <div>Solicitud: #{{ examen.paciente_cod }}</div>
+                                            </div>
 
-                            <q-card v-for="result in results.filter(r => r.status === 'pending')" :key="result.id" flat
-                                bordered class="q-mb-lg">
-                                <q-card-section>
-                                    <div class="row items-center justify-between">
-                                        <div class="column">
-                                            <div class="text-subtitle1">{{ result.type }}</div>
-                                            <div class="text-caption">Fecha: {{ result.date }}</div>
+
                                         </div>
-                                        <q-chip color="orange" text-color="white" icon="pending">
-                                            Pendiente
-                                        </q-chip>
+
+                                        <q-list bordered separator dense style="font-size: smaller;">
+                                            <q-item v-for="result in examen.examenes.validado">
+                                                <q-item-section>
+                                                    <q-item-label>{{ result.examenes.nombre }}</q-item-label>
+                                                </q-item-section>
+                                                <q-item-section side>
+                                                    <q-chip dense
+                                                        style="background-color: transparent; cursor: pointer;">
+                                                        <span style="font-size: smaller; color: grey;">Validado
+
+                                                        </span>
+
+                                                        <q-icon name="fas fa-check-circle" class="q-ml-sm"
+                                                            color="green" />
+                                                    </q-chip>
+                                                </q-item-section>
+                                            </q-item>
+
+                                        </q-list>
+
+                                        <div class="row items-center justify-center q-gutter-sm">
+                                            <q-btn v-if="!expandedGroups.has(i) && getRemainingCount(i) > 0"
+                                                color="secondary"
+                                                :label="'Ver ' + getRemainingCount(i) + ' exámenes más'"
+                                                @click="toggleGroup(i)" flat class="q-mb-sm" />
+                                            <q-btn color="primary" label="Descargar" style="width: 100%;"
+                                                icon="fas fa-download" />
+                                        </div>
                                     </div>
-                                </q-card-section>
-                            </q-card>
+
+                                </q-card>
+                            </template>
+                            <template v-else>
+                                <div class="text-center q-pa-md">No hay exámenes disponibles</div>
+                            </template>
                         </div>
                     </q-scroll-area>
                 </q-tab-panel>
-
-                <q-tab-panel name="ready" style="height: 355px;">
+                <q-tab-panel name="pending" style="height: 333px;">
                     <q-scroll-area class="fit custom-scroll" visible :vertical-offset="[8, 8]">
-                        <div class="column q-pl-md q-pr-md" style="gap: 10px; position: relative;">
+                        <div class="q-pa-md">
+                            <template v-if="pendingExams.length > 0">
+                                <q-card v-for="(examen, i) in pendingExams" :key="i" flat bordered
+                                    class="q-mb-lg q-pa-sm" style="border-radius: 10px;">
+                                    <div class="q-pa-sm column" style="gap:10px">
+                                        <div class="row" style="font-size: x-small; gap:10px">
+                                            <div class="row" style="gap:10px">
 
-                            <div class="bg-blue-grey-1 q-pt-md q-pb-md "
-                                style="font-weight: bolder; z-index: 9; color: grey; border-bottom: 1px solid grey; font-size: medium; position: sticky !important; top: 0;">
-                                Julio</div>
-                            <div class="column ">
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
+                                                <div>Solicitud: #{{ examen.paciente_cod }}</div>
                                             </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-
-                            </div>
-                            <div class="bg-blue-grey-1 q-pt-md q-pb-md "
-                                style="font-weight: bolder; z-index: 9; color: grey; border-bottom: 1px solid grey; font-size: medium; position: sticky !important; top: 0;">
-                                Agosto</div>
-                            <div class="column ">
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-
-                            </div>
-                            <div class="bg-blue-grey-1 q-pt-md q-pb-md "
-                                style="font-weight: bolder; z-index: 9; color: grey; border-bottom: 1px solid grey; font-size: medium; position: sticky !important; top: 0;">
-                                Septiembre</div>
-                            <div class="column ">
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-                                <q-card flat bordered class="q-mb-lg">
-                                    <q-card-section>
-                                        <div class="row items-center justify-between">
-                                            <div class="column">
-                                                <div class="text-subtitle1">texto</div>
-                                                <div class="text-caption">Fecha: 10-01-24</div>
-                                            </div>
-                                            <div class="row items-center" style="gap: 10px;">
-                                                <q-chip color="positive" text-color="white" icon="check_circle">
-                                                    Listo
-                                                </q-chip>
-                                                <q-btn flat round color="primary" icon="download" />
-                                            </div>
-                                        </div>
-                                    </q-card-section>
-                                </q-card>
-
-                            </div>
 
 
+                                        </div>
+
+                                        <q-list bordered separator dense style="font-size: smaller;">
+                                            <q-item v-for="result in examen.examenes.pendiente">
+                                                <q-item-section>
+                                                    <q-item-label class="q-pt-sm ">{{ result.examenes.nombre
+                                                        }}</q-item-label>
+                                                    <q-item-label caption class="q-pb-sm">Fecha estimada: {{
+                                                        result.fecha_prometida
+                                                        }}</q-item-label>
+                                                </q-item-section>
+                                                <q-item-section side>
+                                                    <q-chip dense
+                                                        style="background-color: transparent; cursor: pointer;">
+                                                        <span style="font-size: smaller; color: grey;">Pendiente
+
+                                                        </span>
+                                                        <q-tooltip>
+                                                            Este resultado aun no ha sido validado.
+                                                        </q-tooltip>
+                                                        <q-icon name="fas fa-check-circle" class="q-ml-sm"
+                                                            color="orange" />
+                                                    </q-chip>
+                                                </q-item-section>
+                                            </q-item>
+
+                                        </q-list>
+
+
+                                    </div>
+
+                                </q-card>
+                            </template>
+                            <template v-else>
+                                <div class="text-center q-pa-md">No hay exámenes pendientes</div>
+                            </template>
                         </div>
                     </q-scroll-area>
                 </q-tab-panel>
+
+
             </q-tab-panels>
 
 

@@ -2,12 +2,19 @@
 import { ref } from 'vue'
 import OtpInput from './components/OtpInput.vue'
 import Results from './components/Results.vue';
+import { usePatientStore } from './stores/patient';
+import { useUiStore } from './stores/ui';
+
+const patientStore = usePatientStore()
+const uiStore = useUiStore()
 
 const identification_number = ref('')
 const accept = ref(false)
 const otpCode = ref('')
 const slide = ref('identification')
 const principal = ref('login')
+const timer = ref(30)
+const canResendPin = ref(false)
 
 const numberRule = (val: string) => {
   if (!val) return 'Este campo es requerido'
@@ -15,12 +22,42 @@ const numberRule = (val: string) => {
 }
 
 const handleSendPin = () => {
-
-  slide.value = 'verification'
-
+  patientStore.getPIN(identification_number.value).then(() => {
+    slide.value = 'verification'
+    startTimer()
+  })
 }
+
+const startTimer = () => {
+  timer.value = 30
+  canResendPin.value = false
+  const interval = setInterval(() => {
+    timer.value--
+    if (timer.value === 0) {
+      clearInterval(interval)
+      canResendPin.value = true
+    }
+  }, 1000)
+}
+
+const resendPin = () => {
+  if (canResendPin.value) {
+    handleSendPin()
+  }
+}
+
 const handleVerifyPin = () => {
-  principal.value = 'results'
+  patientStore.validatePIN(otpCode.value).then((data) => {
+    console.log(data)
+    if (data) {
+      principal.value = 'results'
+    }
+    else {
+      console.log('error en el pin')
+    }
+
+  })
+
 }
 </script>
 
@@ -35,7 +72,7 @@ const handleVerifyPin = () => {
           <img src="/images/logo_yamina.svg" alt="">
         </div>
         <div class="q-pa-lg bg-white column items-center " style="width: 600px;  ">
-          <q-carousel animated v-model="principal" transition-prev="slide-right" transition-next="slide-left"
+          <q-carousel animated v-model="principal" transition-prev="slide-right" transition-next="slide-left" no-swipe
             style="width: 100%; height: fit-content;">
             <q-carousel-slide name="login">
               <div class="column q-pa-md items-center" style="gap:30px">
@@ -53,7 +90,7 @@ const handleVerifyPin = () => {
                 </div>
                 <div class="column bg-blue-grey-1 q-pa-md" style="border-radius: 10px; min-width: 420px; ">
                   <q-carousel class="bg-transparent" transition-prev="slide-right" transition-next="slide-left"
-                    v-model="slide" animated style="height: fit-content;">
+                    v-model="slide" animated style="height: fit-content;" no-swipe>
                     <q-carousel-slide name="identification">
                       <div class="column" style="gap:12px">
                         <div class="column" style="gap:8px">
@@ -68,8 +105,13 @@ const handleVerifyPin = () => {
                             }" />
                           <q-checkbox dense v-model="accept" label="Acepto los terminos y condiciones" />
                         </div>
-                        <q-btn :disabled="identification_number.length < 8 || accept == false" @click="handleSendPin"
-                          label="Enviar pin de acceso" color="accent" class="full-width" style="margin-top: 20px;" />
+                        <q-btn :loading="uiStore.loading"
+                          :disabled="identification_number.length < 7 || accept == false" @click="handleSendPin"
+                          label="Enviar pin de acceso" color="accent" class="full-width" style="margin-top: 20px;">
+                          <template v-slot:loading>
+                            <q-spinner />
+                          </template>
+                        </q-btn>
                       </div>
 
                     </q-carousel-slide>
@@ -83,13 +125,19 @@ const handleVerifyPin = () => {
                           <div class="column">
                             <OtpInput v-model="otpCode" />
                             <div style="text-align: center; font-size: small;">
-                              Si no recibio su PIN, puede solicitarlo nuevamente<br> dentro de 30 segundos.
+                              Si no recibio su PIN, puede solicitarlo nuevamente<br>
+                              <span v-if="!canResendPin">en {{ timer }} segundos.</span>
+                              <q-btn v-else flat dense color="primary" label="Reenviar PIN" @click="resendPin" />
                             </div>
                           </div>
 
                         </div>
-                        <q-btn label="Verificar código" color="accent" class="full-width" style="margin-top: 20px;"
-                          @click="handleVerifyPin" />
+                        <q-btn :loading="uiStore.loading" label="Verificar código" color="accent" class="full-width"
+                          style="margin-top: 20px;" @click="handleVerifyPin">
+                          <template v-slot:loading>
+                            <q-spinner />
+                          </template>
+                        </q-btn>
                       </div>
                     </q-carousel-slide>
 

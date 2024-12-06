@@ -7,11 +7,13 @@ export interface Pacienteexamenes {
   paciente_cod: string;
   fecha_final: string;
   examenes: ExamenesDet;
+  
 }
 
 export interface ExamenesDet {
   validado: Status[];
   pendiente: Status[];
+  
 }
 
 export interface Status {
@@ -19,6 +21,7 @@ export interface Status {
   contestado: boolean;
   fecha_recepcion: string;
   examenes: Examen;
+  fecha_prometida:string
 }
 
 export interface Examen {

@@ -1,6 +1,8 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePatientStore } from '@/stores/patient';
+import { usePatientStore } from '@/stores/patient'
+
 
 const patientStore = usePatientStore()
 const tab = ref('ready')
@@ -15,17 +17,22 @@ const toggleGroup = (index: number) => {
 }
 
 const firstName = computed(() => {
+    if (!patientStore.examenRes?.paciente?.length) return 'Usuario'
+
     let pos = 0
-    if (patientStore.examenRes[0].paciente.length > 1) {
+    if (patientStore.examenRes.paciente.length > 1) {
         pos = 1
     }
-    const fullName = patientStore.examenRes[0].paciente[pos].nom1
+
+    const fullName = patientStore.examenRes.paciente[pos]?.nom1 || ''
     const firstWord = fullName.split(' ')[0].toLowerCase()
     return firstWord.charAt(0).toUpperCase() + firstWord.slice(1)
 })
 
 const limitedExams = computed(() => {
-    return patientStore.examenRes[0].paciente_examenes
+    if (!patientStore.examenRes?.paciente_examenes) return []
+
+    return patientStore.examenRes.paciente_examenes
         .map((exam, index) => ({
             ...exam,
             examenes: {
@@ -39,48 +46,21 @@ const limitedExams = computed(() => {
 })
 
 const pendingExams = computed(() => {
-    return patientStore.examenRes[0].paciente_examenes
+    if (!patientStore.examenRes?.paciente_examenes) return []
+
+    return patientStore.examenRes.paciente_examenes
         .filter(exam => exam.examenes.pendiente && exam.examenes.pendiente.length > 0)
 })
 
 const getRemainingCount = (index: number) => {
-    const exam = patientStore.examenRes[0].paciente_examenes[index]
-    const totalValidated = exam.examenes.validado?.length || 0
-    return Math.max(0, totalValidated - 3)
+    if (!patientStore.examenRes?.paciente_examenes) return 0
+
+    const exam = patientStore.examenRes.paciente_examenes[index]
+    if (!exam?.examenes?.validado) return 0
+
+    return Math.max(0, exam.examenes.validado.length - 3)
 }
 
-const results = ref([
-    {
-        id: 1,
-        date: '2023-11-28',
-        type: 'Hemograma',
-        status: 'pending'
-    },
-    {
-        id: 2,
-        date: '2023-11-27',
-        type: 'Glucosa',
-        status: 'ready'
-    },
-    {
-        id: 2,
-        date: '2023-11-27',
-        type: 'Glucosa',
-        status: 'ready'
-    },
-    {
-        id: 2,
-        date: '2023-11-27',
-        type: 'Glucosa',
-        status: 'ready'
-    },
-    {
-        id: 2,
-        date: '2023-11-27',
-        type: 'Glucosa',
-        status: 'ready'
-    }
-])
 
 </script>
 
@@ -116,7 +96,7 @@ const results = ref([
                                         </div>
 
                                         <q-list bordered separator dense style="font-size: smaller;">
-                                            <q-item v-for="result in examen.examenes.validado">
+                                            <q-item v-for="(result, i) in examen.examenes.validado" :key="i">
                                                 <q-item-section>
                                                     <q-item-label>{{ result.examenes.nombre }}</q-item-label>
                                                 </q-item-section>
@@ -170,7 +150,7 @@ const results = ref([
                                         </div>
 
                                         <q-list bordered separator dense style="font-size: smaller;">
-                                            <q-item v-for="result in examen.examenes.pendiente">
+                                            <q-item v-for="(result, i) in examen.examenes.pendiente" :key="i">
                                                 <q-item-section>
                                                     <q-item-label class="q-pt-sm ">{{ result.examenes.nombre
                                                         }}</q-item-label>

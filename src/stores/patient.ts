@@ -1,8 +1,6 @@
-
 import { defineStore } from 'pinia'
 import { useUiStore } from './ui'
-
-
+import type { ExamenRes } from '@/types/resExams'
 
 export const usePatientStore = defineStore('patient', {
     state: () => ({
@@ -12,7 +10,7 @@ export const usePatientStore = defineStore('patient', {
         phone:'',
         pin:'',
         token:'',
-        examenRes:{}
+        examenRes: {} as ExamenRes
     }),
     actions: {
 
@@ -46,7 +44,7 @@ export const usePatientStore = defineStore('patient', {
         }
       },
       async validatePIN(pin:string) {
-        this.examenRes={}
+        
         const uiStore = useUiStore()
         uiStore.loading = true
   
@@ -70,7 +68,7 @@ export const usePatientStore = defineStore('patient', {
             return false
           }
           else{
-            this.examenRes=data
+            this.examenRes=data[0]
             this.token = data[0].token
             uiStore.loading = false
             return true

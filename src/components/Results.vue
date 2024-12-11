@@ -89,7 +89,7 @@ const getRemainingCount = (index: number) => {
                                         <div class="row" style="font-size: x-small; gap:10px">
                                             <div class="row" style="gap:10px">
                                                 <div>Fecha de generación: {{ examen.fecha_final }}</div>
-                                                <div>Solicitud: #{{ examen.paciente_cod }}</div>
+                                                <div>Solicitud:1 #{{ examen.paciente_cod }}</div>
                                             </div>
 
 
@@ -160,7 +160,7 @@ const getRemainingCount = (index: number) => {
                                                         }}</q-item-label>
                                                     <q-item-label caption class="q-pb-sm">Fecha estimada: {{
                                                         result.fecha_prometida
-                                                        }}</q-item-label>
+                                                    }}</q-item-label>
                                                 </q-item-section>
                                                 <q-item-section side>
                                                     <q-chip dense

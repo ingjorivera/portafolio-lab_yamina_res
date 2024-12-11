@@ -108,7 +108,7 @@ link.click()
 document.body.removeChild(link)
 URL.revokeObjectURL(blobUrl)
           })
-         
+         console.log('resultado descargado')
           
           
           

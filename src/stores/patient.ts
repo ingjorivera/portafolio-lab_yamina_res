@@ -82,7 +82,7 @@ export const usePatientStore = defineStore('patient', {
       async downloadFile(code:string) {
         const uiStore = useUiStore()
         uiStore.loading = true
-  
+  console.log('entra a descargar')
         try {
           const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0?download`, {
             method: 'POST',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import OtpInput from './components/OtpInput.vue'
-import Results from './components/Results.vue';
+import Results from './components/Results_.vue';
 import { usePatientStore } from './stores/patient';
 import { useUiStore } from './stores/ui';
 

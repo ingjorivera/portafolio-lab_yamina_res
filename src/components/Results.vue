@@ -123,6 +123,9 @@ const getRemainingCount = (index: number) => {
                                             <q-btn color="primary" label="Descargar" style="width: 100%;"
                                                 icon="fas fa-download"
                                                 @click="patientStore.downloadFile(examen.paciente_cod)" />
+                                            <q-btn color="primary" label="Descargar" style="width: 100%;"
+                                                icon="fas fa-download"
+                                                @click="patientStore.downloadFile(examen.paciente_cod)" />
                                         </div>
                                     </div>
 
@@ -157,7 +160,7 @@ const getRemainingCount = (index: number) => {
                                                         }}</q-item-label>
                                                     <q-item-label caption class="q-pb-sm">Fecha estimada: {{
                                                         result.fecha_prometida
-                                                    }}</q-item-label>
+                                                        }}</q-item-label>
                                                 </q-item-section>
                                                 <q-item-section side>
                                                     <q-chip dense

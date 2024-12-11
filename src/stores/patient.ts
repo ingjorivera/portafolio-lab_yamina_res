@@ -13,8 +13,6 @@ export const usePatientStore = defineStore('patient', {
         examenRes: {} as ExamenRes
     }),
     actions: {
-
-
       async getPIN(id: string) {
         const uiStore = useUiStore()
         uiStore.loading = true
@@ -80,10 +78,47 @@ export const usePatientStore = defineStore('patient', {
           console.log(error)
           return false
         }
-      }
+      },
+      async downloadFile(code:string) {
+        const uiStore = useUiStore()
+        uiStore.loading = true
+  
+        try {
+          const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({code})
+          })
+  
+          const data = await response.blob().then((res)=>{
+// Crear URL temporal para el blob
+const blobUrl = URL.createObjectURL(res)
+          
+// Crear enlace virtual y disparar la descarga
+const link = document.createElement('a')
+link.href = blobUrl
+link.download = `resultado_${code}.pdf` // Nombre del archivo
+document.body.appendChild(link)
+link.click()
 
-        
-        
-    },
-   
+// Limpiar
+document.body.removeChild(link)
+URL.revokeObjectURL(blobUrl)
+          })
+         
+          
+          
+          
+          uiStore.loading = false
+          return true
+        } catch (error) {
+          console.log(error)
+          uiStore.loading = false
+          return false
+        }
+      }
+    }
 })

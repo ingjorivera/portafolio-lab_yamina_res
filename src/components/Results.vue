@@ -66,7 +66,7 @@ const getRemainingCount = (index: number) => {
 
 <template>
     <div class="column full-height" style="gap: 14px;">
-        <div class="text-h5 text-primary" style="font-weight: bold;">Hola, {{ firstName }}</div>
+        <div class="text-h5 text-primary" style="font-weight: bold;">Hola {{ firstName }},</div>
         <div>Accede fácilmente a tus resultados de laboratorio. Aquí encontrarás tanto los pendientes como los que ya
             están listos para descargar.
         </div>
@@ -121,7 +121,8 @@ const getRemainingCount = (index: number) => {
                                                 :label="'Ver ' + getRemainingCount(i) + ' exámenes más'"
                                                 @click="toggleGroup(i)" flat class="q-mb-sm" />
                                             <q-btn color="primary" label="Descargar" style="width: 100%;"
-                                                icon="fas fa-download" />
+                                                icon="fas fa-download"
+                                                @click="patientStore.downloadFile(examen.paciente_cod)" />
                                         </div>
                                     </div>
 

@@ -157,7 +157,7 @@ const getRemainingCount = (index: number) => {
                                                         }}</q-item-label>
                                                     <q-item-label caption class="q-pb-sm">Fecha estimada: {{
                                                         result.fecha_prometida
-                                                        }}</q-item-label>
+                                                    }}</q-item-label>
                                                 </q-item-section>
                                                 <q-item-section side>
                                                     <q-chip dense

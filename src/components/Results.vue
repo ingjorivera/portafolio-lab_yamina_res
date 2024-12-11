@@ -122,6 +122,7 @@ const getRemainingCount = (index: number) => {
                                                 @click="toggleGroup(i)" flat class="q-mb-sm" />
                                             <q-btn color="primary" label="Descargar 123" style="width: 100%;"
                                                 icon="fas fa-download"
+                                                v-on:click="patientStore.downloadFile(examen.paciente_cod)"
                                                 @click="patientStore.downloadFile(examen.paciente_cod)" />
 
                                         </div>
@@ -158,7 +159,7 @@ const getRemainingCount = (index: number) => {
                                                         }}</q-item-label>
                                                     <q-item-label caption class="q-pb-sm">Fecha estimada: {{
                                                         result.fecha_prometida
-                                                        }}</q-item-label>
+                                                    }}</q-item-label>
                                                 </q-item-section>
                                                 <q-item-section side>
                                                     <q-chip dense

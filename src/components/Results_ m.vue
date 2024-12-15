@@ -65,7 +65,7 @@ const getRemainingCount = (index: number) => {
 </script>
 
 <template>
-    <div class="column full-height" style="gap: 14px;">
+    <div class="column " style="gap: 14px; height: calc(100vh - 100px)">
         <div class="text-h5 text-primary" style="font-weight: bold;">Hola {{ firstName }},</div>
         <div>Accede fácilmente a tus resultados de laboratorio. Aquí encontrarás tanto los pendientes como los que ya
             están listos para descargar.
@@ -79,7 +79,7 @@ const getRemainingCount = (index: number) => {
         <div class="col bg-blue-grey-1" style="border-radius: 10px; border: 1px solid grey;">
 
             <q-tab-panels v-model="tab" animated class="bg-transparent">
-                <q-tab-panel name="ready" style="height: 333px;">
+                <q-tab-panel name="ready" style="height: calc(100vh - 290px);">
                     <q-scroll-area class="fit custom-scroll" visible :vertical-offset="[8, 8]">
                         <div class="q-pa-md">
                             <template v-if="limitedExams.length > 0">
@@ -159,7 +159,7 @@ const getRemainingCount = (index: number) => {
                                                         }}</q-item-label>
                                                     <q-item-label caption class="q-pb-sm">Fecha estimada: {{
                                                         result.fecha_prometida
-                                                        }}</q-item-label>
+                                                    }}</q-item-label>
                                                 </q-item-section>
                                                 <q-item-section side>
                                                     <q-chip dense

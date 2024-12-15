@@ -32,12 +32,20 @@ export const usePatientStore = defineStore('patient', {
           const data = await response.json()
   
           if (!response.ok) throw new Error('Error fetching in pin send')
-  
-          this.phone = data.phone
-          uiStore.loading = false
-          return true
+            if(data.error){
+              uiStore.loading = false
+              uiStore.showNotification('Usuario no encontrado!')
+              return false
+            }
+            else{
+              this.phone = data.phone
+              uiStore.loading = false
+              return true
+            }
+          
         } catch (error) {
-          console.log(error)
+          uiStore.showNotification('Error al enviar el pin, intente mas tarde')
+          console.log('error',error)
           return false
         }
       },
@@ -63,6 +71,7 @@ export const usePatientStore = defineStore('patient', {
           console.log(data)
           if(data.error){
             uiStore.loading = false
+            uiStore.showNotification('Pin no valido, intente nuevamente o solicite uno nuevo')
             return false
           }
           else{
@@ -75,6 +84,7 @@ export const usePatientStore = defineStore('patient', {
           
          
         } catch (error) {
+          uiStore.showNotification('Error al validar el pin, intente mas tarde')
           console.log(error)
           return false
         }
@@ -84,7 +94,7 @@ export const usePatientStore = defineStore('patient', {
         uiStore.loading = true
   console.log('entra a descargar')
         try {
-          const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0?download`, {
+          const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${this.token}`,
@@ -93,29 +103,24 @@ export const usePatientStore = defineStore('patient', {
             body: JSON.stringify({code})
           })
   
-          const data = await response.blob().then((res)=>{
-// Crear URL temporal para el blob
-const blobUrl = URL.createObjectURL(res)
+          const blob = await response.blob()
+          const blobUrl = URL.createObjectURL(blob)
           
-// Crear enlace virtual y disparar la descarga
-const link = document.createElement('a')
-link.href = blobUrl
-link.download = `resultado_${code}.pdf` // Nombre del archivo
-document.body.appendChild(link)
-link.click()
-
-// Limpiar
-document.body.removeChild(link)
-URL.revokeObjectURL(blobUrl)
-          })
-         console.log('resultado descargado')
+          const link = document.createElement('a')
+          link.href = blobUrl
+          link.download = `resultado_${code}.pdf`
+          document.body.appendChild(link)
+          link.click()
           
+          document.body.removeChild(link)
+          URL.revokeObjectURL(blobUrl)
           
-          
+          console.log('resultado descargado')
           uiStore.loading = false
           return true
         } catch (error) {
           console.log(error)
+          uiStore.showNotification('Error al descargar el archivo, pongase en contacto con servicio al cliente del Laboratorio Especializado Yamina Cumplido')
           uiStore.loading = false
           return false
         }

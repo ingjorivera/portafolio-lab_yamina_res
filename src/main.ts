@@ -3,7 +3,7 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
-import { Quasar } from 'quasar'
+import { Quasar, Notify } from 'quasar'
 import quasarLang from 'quasar/lang/es'
 import quasarIconSet from 'quasar/icon-set/fontawesome-v5'
 
@@ -23,10 +23,13 @@ const app = createApp(App)
 app.use(createPinia())
 //app.use(router)
 app.use(Quasar, {
-    plugins: {}, // import Quasar plugins and add here
+    plugins: {
+      Notify
+    }, // import Quasar plugins and add here
     lang: quasarLang,
     iconSet: quasarIconSet,
     config: {
+      
       brand: {
         primary: '#374B96',
         secondary: '#34BAE9',

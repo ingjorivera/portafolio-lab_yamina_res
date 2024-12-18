@@ -98,22 +98,48 @@ export const usePatientStore = defineStore('patient', {
         uiStore.loading = true
   
         try {
-          fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0`, {
+          const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${this.token}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({code})
-          }).then(response => response.blob())
-  
-          //const data = await response.
+          })
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+
+          // Get the filename from Content-Disposition header
+          const contentDisposition = response.headers.get('Content-Disposition')
+          const filenameMatch = contentDisposition && contentDisposition.match(/filename="(.+)"/)
+          const filename = filenameMatch ? filenameMatch[1] : `resultado_${code}.pdf`
+
+          // Convert the response to a blob
+          const blob = await response.blob()
+          
+          // Create a URL for the blob
+          const url = window.URL.createObjectURL(blob)
+          
+          // Create a temporary link element and trigger the download
+          const link = document.createElement('a')
+          link.href = url
+          link.download = filename
+          document.body.appendChild(link)
+          link.click()
+          
+          // Clean up
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(url)
+          uiStore.loading = false
+          return true
         } catch (error) {
-          console.log(error)
+          console.error(error)
           uiStore.showNotification('Error al descargar el archivo, pongase en contacto con servicio al cliente del Laboratorio Especializado Yamina Cumplido')
           uiStore.loading = false
           return false
         }
-      }
+      },
     }
 })

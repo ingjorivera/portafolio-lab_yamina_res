@@ -3,7 +3,6 @@
 import { ref, computed } from 'vue'
 import { usePatientStore } from '@/stores/patient'
 
-
 const patientStore = usePatientStore()
 const tab = ref('ready')
 const expandedGroups = ref(new Set())
@@ -17,49 +16,48 @@ const toggleGroup = (index: number) => {
 }
 
 const firstName = computed(() => {
-    if (!patientStore.examenRes?.paciente?.length) return 'Usuario'
+    if (patientStore.patient.nom1 == '') return 'Usuario'
 
-    let pos = 0
-    if (patientStore.examenRes.paciente.length > 1) {
-        pos = 1
-    }
 
-    const fullName = patientStore.examenRes.paciente[pos]?.nom1 || ''
+
+    const fullName = patientStore.patient.nom1 || ''
     const firstWord = fullName.split(' ')[0].toLowerCase()
+
+
     return firstWord.charAt(0).toUpperCase() + firstWord.slice(1)
+
+
 })
 
 const limitedExams = computed(() => {
-    if (!patientStore.examenRes?.paciente_examenes) return []
+    if (!patientStore.pacienteExamenes) return []
 
-    return patientStore.examenRes.paciente_examenes
+    return patientStore.pacienteExamenes
         .map((exam, index) => ({
             ...exam,
-            examenes: {
-                ...exam.examenes,
-                validado: exam.examenes.validado ?
-                    (expandedGroups.value.has(index) ? exam.examenes.validado : exam.examenes.validado.slice(0, 3)) :
-                    []
-            }
+            validados: expandedGroups.value.has(index) ? exam.validados : exam.validados.slice(0, 2)
         }))
-        .filter(exam => exam.examenes.validado && exam.examenes.validado.length > 0)
+        .filter(exam => exam.validados && exam.validados.length > 0)
 })
+console.log(limitedExams)
 
 const pendingExams = computed(() => {
-    if (!patientStore.examenRes?.paciente_examenes) return []
+    if (!patientStore.pacienteExamenes) return []
 
-    return patientStore.examenRes.paciente_examenes
-        .filter(exam => exam.examenes.pendiente && exam.examenes.pendiente.length > 0)
+    return patientStore.pacienteExamenes
+        .filter(exam => exam.pendientes && exam.pendientes.length > 0)
 })
 
-const getRemainingCount = (index: number) => {
-    if (!patientStore.examenRes?.paciente_examenes) return 0
+const showMoreButton = computed(() => {
+    return (index: number) => {
+        const exam = patientStore.pacienteExamenes[index]
+        return exam?.validados && exam.validados.length > 2
+    }
+})
 
-    const exam = patientStore.examenRes.paciente_examenes[index]
-    if (!exam?.examenes?.validado) return 0
 
-    return Math.max(0, exam.examenes.validado.length - 3)
-}
+
+
 
 
 </script>
@@ -76,7 +74,7 @@ const getRemainingCount = (index: number) => {
             <q-tab icon="fas fa-check" name="ready" label="Disponibles" />
             <q-tab icon="fas fa-clock" name="pending" label="Pendientes" />
         </q-tabs>
-        <div class="col bg-blue-grey-1" style="border-radius: 10px; border: 1px solid grey;">
+        <div class="col bg-blue-grey-2" style="border-radius: 10px; border: 1px solid grey;">
 
             <q-tab-panels v-model="tab" animated class="bg-transparent">
                 <q-tab-panel name="ready" style="height: 333px;">
@@ -87,47 +85,51 @@ const getRemainingCount = (index: number) => {
                                     class="q-mb-lg q-pa-sm" style="border-radius: 10px;">
                                     <div class="q-pa-sm column" style="gap:10px">
                                         <div class="row" style="font-size: x-small; gap:10px">
+                                            <i class="far fa-file-alt" style="font-size: small;"></i>
                                             <div class="row" style="gap:10px">
-                                                <div>Fecha de generación: {{ examen.fecha_final }}</div>
-                                                <div>Solicitud:1 #{{ examen.paciente_cod }}</div>
+                                                <div class="row">
+                                                    <div class="text-blue-grey-5 q-pr-xs">Fecha de generación: </div> {{
+                                                        examen.fec_val
+                                                    }}
+                                                </div>
+                                                <div class="row">
+                                                    <div class="text-blue-grey-5 q-pr-xs">Solicitud: #</div>{{
+                                                        examen.paciente_cod }}
+                                                </div>
                                             </div>
-
-
                                         </div>
 
                                         <q-list bordered separator dense style="font-size: smaller;">
-                                            <q-item v-for="(result, i) in examen.examenes.validado" :key="i">
+                                            <q-item v-for="(result, j) in examen.validados" :key="j">
                                                 <q-item-section>
-                                                    <q-item-label>{{ result.examenes.nombre }}</q-item-label>
+                                                    <q-item-label class="grey-7">{{ result }}</q-item-label>
                                                 </q-item-section>
                                                 <q-item-section side>
                                                     <q-chip dense
                                                         style="background-color: transparent; cursor: pointer;">
-                                                        <span style="font-size: smaller; color: grey;">Validado
-
-                                                        </span>
-
+                                                        <span style="font-size: smaller; color: grey;">Validado</span>
                                                         <q-icon name="fas fa-check-circle" class="q-ml-sm"
                                                             color="green" />
                                                     </q-chip>
                                                 </q-item-section>
                                             </q-item>
-
                                         </q-list>
 
+                                        <div v-if="showMoreButton(i)" class="text-center">
+                                            <q-btn flat color="primary"
+                                                :label="expandedGroups.has(i) ? 'Ver menos' : 'Ver más'"
+                                                @click="toggleGroup(i)" dense no-caps rounded
+                                                style="background-color: #E8F3FA; padding-left: 10px; padding-right: 10px;"
+                                                size="sm" />
+                                        </div>
                                         <div class="row items-center justify-center q-gutter-sm">
-                                            <q-btn v-if="!expandedGroups.has(i) && getRemainingCount(i) > 0"
-                                                color="secondary"
-                                                :label="'Ver ' + getRemainingCount(i) + ' exámenes más'"
-                                                @click="toggleGroup(i)" flat class="q-mb-sm" />
-                                            <q-btn color="primary" label="Descargar 123" style="width: 100%;"
+
+                                            <q-btn color="primary" label="Descargar resultado" style="width: 100%;"
                                                 icon="fas fa-download"
-                                                v-on:click="patientStore.downloadFile(examen.paciente_cod)"
                                                 @click="patientStore.downloadFile(examen.paciente_cod)" />
 
                                         </div>
                                     </div>
-
                                 </q-card>
                             </template>
                             <template v-else>
@@ -145,42 +147,32 @@ const getRemainingCount = (index: number) => {
                                     <div class="q-pa-sm column" style="gap:10px">
                                         <div class="row" style="font-size: x-small; gap:10px">
                                             <div class="row" style="gap:10px">
-
+                                                <div>Fecha de solicitud: {{ examen.fecha_recepcion }}</div>
                                                 <div>Solicitud: #{{ examen.paciente_cod }}</div>
                                             </div>
-
-
                                         </div>
 
                                         <q-list bordered separator dense style="font-size: smaller;">
-                                            <q-item v-for="(result, i) in examen.examenes.pendiente" :key="i">
+                                            <q-item v-for="(result, j) in examen.pendientes" :key="j">
                                                 <q-item-section>
-                                                    <q-item-label class="q-pt-sm ">{{ result.examenes.nombre
-                                                        }}</q-item-label>
-                                                    <q-item-label caption class="q-pb-sm">Fecha estimada: {{
-                                                        result.fecha_prometida
-                                                    }}</q-item-label>
+                                                    <q-item-label class="grey-7">{{ result }}</q-item-label>
+                                                    <q-item-label caption class="q-pb-sm">
+                                                        Fecha estimada: {{ examen.fecha_prometida }}
+                                                    </q-item-label>
                                                 </q-item-section>
                                                 <q-item-section side>
                                                     <q-chip dense
                                                         style="background-color: transparent; cursor: pointer;">
-                                                        <span style="font-size: smaller; color: grey;">Pendiente
-
-                                                        </span>
+                                                        <span style="font-size: smaller; color: grey;">Pendiente</span>
                                                         <q-tooltip>
                                                             Este resultado aun no ha sido validado.
                                                         </q-tooltip>
-                                                        <q-icon name="fas fa-check-circle" class="q-ml-sm"
-                                                            color="orange" />
+                                                        <q-icon name="fas fa-clock" class="q-ml-sm" color="orange" />
                                                     </q-chip>
                                                 </q-item-section>
                                             </q-item>
-
                                         </q-list>
-
-
                                     </div>
-
                                 </q-card>
                             </template>
                             <template v-else>
@@ -189,13 +181,8 @@ const getRemainingCount = (index: number) => {
                         </div>
                     </q-scroll-area>
                 </q-tab-panel>
-
-
             </q-tab-panels>
-
-
         </div>
-
     </div>
 </template>
 

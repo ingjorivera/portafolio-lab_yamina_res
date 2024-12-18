@@ -1,16 +1,18 @@
 import { defineStore } from 'pinia'
 import { useUiStore } from './ui'
 import type { ExamenRes } from '@/types/resExams'
+import type {  Paciente,Pacienteexamenes } from '@/types/resExam1'
 
 export const usePatientStore = defineStore('patient', {
     state: () => ({
-        patient: {},
+        patient: {} as Paciente,
         patients: [],
         patient_id: '',
         phone:'',
         pin:'',
         token:'',
-        examenRes: {} as ExamenRes
+        examenRes: {} as ExamenRes,
+        pacienteExamenes: [] as Pacienteexamenes[]
     }),
     actions: {
       async getPIN(id: string) {
@@ -75,7 +77,8 @@ export const usePatientStore = defineStore('patient', {
             return false
           }
           else{
-            this.examenRes=data[0]
+            this.pacienteExamenes=data[0].paciente_examenes
+            this.patient=data[0].paciente
             this.token = data[0].token
             uiStore.loading = false
             return true
@@ -90,34 +93,21 @@ export const usePatientStore = defineStore('patient', {
         }
       },
       async downloadFile(code:string) {
+        
         const uiStore = useUiStore()
         uiStore.loading = true
-  console.log('entra a descargar')
+  
         try {
-          const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0`, {
+          fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${this.token}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({code})
-          })
+          }).then(response => response.blob())
   
-          const blob = await response.blob()
-          const blobUrl = URL.createObjectURL(blob)
-          
-          const link = document.createElement('a')
-          link.href = blobUrl
-          link.download = `resultado_${code}.pdf`
-          document.body.appendChild(link)
-          link.click()
-          
-          document.body.removeChild(link)
-          URL.revokeObjectURL(blobUrl)
-          
-          console.log('resultado descargado')
-          uiStore.loading = false
-          return true
+          //const data = await response.
         } catch (error) {
           console.log(error)
           uiStore.showNotification('Error al descargar el archivo, pongase en contacto con servicio al cliente del Laboratorio Especializado Yamina Cumplido')

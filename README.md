@@ -33,3 +33,38 @@ npm install
 ```sh
 npm run lint
 ```
+
+### 2️⃣ Modo de Desarrollo
+```bash
+npm run dev
+```
+
+### 3️⃣ Compilación y Minificación para Producción
+```bash
+npm run build
+```
+
+### 4️⃣ Análisis de Tipos con TypeScript
+```bash
+npm run type-check
+```
+
+### 5️⃣ Linting de Código
+```bash
+npm run lint
+```
+
+---
+
+## 🔧 Requisitos Recomendados
+
+- **IDE**: [Visual Studio Code](https://code.visualstudio.com/)
+  - Extensiones:
+    - [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (Deshabilitar Vetur).
+- **Node.js**: Versión 16 o superior.
+
+---
+
+## 📝 Configuración Adicional
+
+Consulta la documentación de configuración de Vite en [Vite Configuration Reference](https://vitejs.dev/config).

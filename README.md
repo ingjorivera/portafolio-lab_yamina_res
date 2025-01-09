@@ -1,36 +1,32 @@
-# lab_yamina_res
+# 🧪 Lab Yamina Res - Micrositio de Resultados de Laboratorio
 
-This template should help get you started developing with Vue 3 in Vite.
+Este proyecto es un micrositio web que permite a los usuarios descargar sus resultados de laboratorio clínico. El acceso se asegura mediante un OTP (One-Time Password) enviado por **WhatsApp** y **SMS**.
 
-## Recommended IDE Setup
+---
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 🚀 Características
 
-## Type Support for `.vue` Imports in TS
+- Descarga segura de resultados clínicos.
+- Envío de OTP mediante servicios de mensajería (WhatsApp y SMS).
+- Interfaz moderna y optimizada con **Vue 3** y **Vite**.
+- Configuración rápida para desarrollo y despliegue.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+---
 
-## Customize configuration
+## 🛠️ Tecnologías
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **Vue 3**: Framework principal para la interfaz de usuario.
+- **Vite**: Herramienta de desarrollo para compilación rápida.
+- **Node.js/NPM**: Gestión de dependencias y scripts.
+- **WhatsApp API / SMS Gateway**: Para el envío de OTPs.
 
-## Project Setup
+---
 
-```sh
+## 📦 Configuración del Proyecto
+
+### 1️⃣ Instalación de Dependencias
+```bash
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
 
 ### Lint with [ESLint](https://eslint.org/)
 

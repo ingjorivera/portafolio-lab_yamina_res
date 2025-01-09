@@ -55,6 +55,11 @@ npm run lint
 ```
 
 ---
+## Captura de pantalla
+![Capture-2025-01-09-002137](https://github.com/user-attachments/assets/41eeff64-1686-470a-9c2f-f715e0afcdef)
+
+
+---
 
 ## 🔧 Requisitos Recomendados
 

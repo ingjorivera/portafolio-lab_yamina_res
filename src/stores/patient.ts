@@ -21,7 +21,7 @@ export const usePatientStore = defineStore('patient', {
         this.patient_id=id
   
         try {
-          const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/2755cc81-5d0f-4852-931c-921309c5d5c7`, {
+          const response = await fetch(`https://services.resultadosyaminacumplido.com/webhook/2755cc81-5d0f-4852-931c-921309c5d5c7`, {
             method: 'POST',
             headers: {
              
@@ -57,7 +57,7 @@ export const usePatientStore = defineStore('patient', {
         uiStore.loading = true
   
         try {
-          const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/556af0dd-5193-4fe4-b8cb-913f2a8e8978`, {
+          const response = await fetch(`https://services.resultadosyaminacumplido.com/webhook/556af0dd-5193-4fe4-b8cb-913f2a8e8978`, {
             method: 'POST',
             headers: {
              
@@ -98,7 +98,7 @@ export const usePatientStore = defineStore('patient', {
         uiStore.loading = true
   
         try {
-          const response = await fetch(`https://n8n-ioc8gg0g4c8kk0sckgcckccs.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0`, {
+          const response = await fetch(`https://services.resultadosyaminacumplido.com/webhook/58d79f60-287c-41ba-8cfe-cc05202c75a0`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${this.token}`,

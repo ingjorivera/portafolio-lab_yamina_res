@@ -76,8 +76,13 @@ export const usePatientStore = defineStore('patient', {
             uiStore.showNotification('Pin no valido, intente nuevamente o solicite uno nuevo')
             return false
           }
-          else{
-            this.pacienteExamenes=data[0].paciente_examenes
+          else {
+            // Sort paciente_examenes by fecha_recepcion from most recent to oldest
+            const sortedExamenes = data[0].paciente_examenes.sort((a: any, b: any) => {
+              return new Date(b.fecha_recepcion).getTime() - new Date(a.fecha_recepcion).getTime()
+            })
+            console.log(sortedExamenes)
+            this.pacienteExamenes=sortedExamenes
             this.patient=data[0].paciente
             this.token = data[0].token
             uiStore.loading = false
